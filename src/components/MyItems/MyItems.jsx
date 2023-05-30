@@ -26,6 +26,8 @@ export default function MyItems() {
     name: 'Пижамы мужские',
     price: 255
   }];
+
+  // const {login: loginState} = useContext(LoggedInContext);
   const [input, setInput] = useState('');
 
   return (
