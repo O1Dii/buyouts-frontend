@@ -33,7 +33,8 @@ export default function MyItemsContextProvider(props) {
     axios
       .get(GET_ITEMS, {
         headers:{
-          'Bearer': '123'
+          'Bearer': '123',
+          'Access-Control-Allow-Origin': '*'
         }
       })
       .then(response => {
