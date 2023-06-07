@@ -42,7 +42,7 @@ export default function ItemsTable({items}) {
         {product.price}
       </Grid>
       <Grid xs={2}>
-        <Button component={Link} to={"/buyouts/detail/0"}>Выкуп</Button>
+        <Button component={Link} to={`/buyouts/detail/${product.num}`}>Выкуп</Button>
       </Grid>
     </Grid>
   ));

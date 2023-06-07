@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState, useContext, useEffect} from 'react';
 
 import Box from '@mui/material/Box';
 import {Button} from "@mui/material";
@@ -12,58 +12,47 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Select from '@mui/material/Select';
 import Modal from "@mui/material/Modal";
 import InputLabel from "@mui/material/InputLabel";
-import {MapContainer, Marker, Popup, TileLayer} from "react-leaflet";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import ToggleButton from "@mui/material/ToggleButton";
+import {MyItemsContext} from '../../context/ItemsContext';
+import DeliverySelection from '../DeliverySelection/DeliverySelection';
+import ItemsSearch from '../ItemsSearch/ItemsSearch';
+import Typography from "@mui/material/Typography";
+import {useParams} from "react-router-dom";
+
 
 export default function CreateBuyoutForm() {
-  const items = [{
-    num: 14145395,
-    img: 'https://basket-04.wb.ru/vol716/part71606/71606542/images/big/1.jpg',
-    name: 'Фитнес резинки Эспандеры для тренировок',
-    seller: 'BODY FIT',
-    price: 410
-  }, {
-    num: 14145396,
-    img: 'https://basket-01.wb.ru/vol141/part14145/14145395/images/big/1.jpg',
-    name: 'Резинки для фитнеса. Эспандер ленточный. Набор для спорта',
-    seller: 'FIT FOR ME',
-    price: 526
-  }];
+  const {myItems, deliveryAddresses, loadItems} = useContext(MyItemsContext);
+  const {productId} = useParams();
 
-  const [selectedItem, setSelectedItem] = useState();
-  const [competitorsSelected, setCompetitorsSelected] = useState(false);
-
-  // map
-  const [isMapOpen, setIsMapOpen] = useState(false);
-  const position = [55.755826, 37.6173];
-
-  navigator.geolocation.watchPosition(success, () => {
-    console.log('geolocation error')
+  const [formData, setFormData] = useState({
+    item: null,
+    extraItems: [],
+    sex: 'F',  // TODO: move to constants
+    keyString: '',
+    filters: {},
+    address: '',
+    competitorItems: [],
+    plannedTime: null
   });
 
-  function success(pos) {
-    const lat = pos.coords.latitude;
-    const lng = pos.coords.longitude;
-    const accuracy = pos.coords.accuracy;
+  console.log(productId)
 
-    // if (marker) {
-    //   map.removeLayer(marker);
-    //   map.removeLayer(circle);
-    // }
-    // // Removes any existing marker and circule (new ones about to be set)
-    //
-    // marker = L.marker([lat, lng]).addTo(map);
-    // circle = L.circle([lat, lng], {radius: accuracy}).addTo(map);
-    // // Adds marker to the map and a circle for accuracy
-    //
-    // if (!zoomed) {
-    //   zoomed = map.fitBounds(circle.getBounds());
-    // }
-    // // Set zoom to boundaries of accuracy circle
-    //
-    // map.setView([lat, lng]);
-    // Set map focus to current user position
+  useEffect(() => {
+    console.log(productId)
+    console.log(myItems)
+    const items = (myItems.items || []).filter(item => `${item.num}` === productId);
+    if (items.length > 0) {
+      setFormData({...formData, item: items[0]})
+    }
+  }, [productId, myItems])
 
-  }
+  const [competitorsSelected, setCompetitorsSelected] = useState(false);
+  const [extraItemsSelected, setExtraItemsSelected] = useState(false);
+
+  const [isMapOpen, setIsMapOpen] = useState(false);
+
+  useEffect(() => {loadItems()}, [])
 
   return (
     <Box>
@@ -73,37 +62,109 @@ export default function CreateBuyoutForm() {
           <Select
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value={selectedItem?.num || 0}
+            value={formData.item?.num || 0}
             label="Выберите товар"
             onChange={(e) => {
-              const item = items.filter(item => e.target.value === item.num)[0]
-              setSelectedItem(item);
+              const item = (myItems.items || []).filter(item => e.target.value === item.num)[0]
+              setFormData({...formData, item: item});
             }}
           >
-            {items.map((item) => <MenuItem value={item.num}>{`№${item.num}: ${item.name}`}</MenuItem>)}
+            {(myItems.items || []).map((item) => <MenuItem value={item.num}>{`№${item.num}: ${item.name}`}</MenuItem>)}
           </Select>
         </FormControl>
-        {selectedItem && <Paper elevation={3}>
-          <Stack direction={"row"}>
-            <img src={selectedItem['img']}/>
-            <p>{selectedItem['name']}</p>
-          </Stack>
-        </Paper>}
+        {formData.item &&
+          <>
+          <Paper elevation={3} sx={{width: "80%"}}>
+            <Stack direction={"row"}>
+              <Box component="img" sx={{height: 100}} src={formData.item.img} alt={""}/>
+              <Stack>
+                <Typography>
+                  {`#${formData.item.num} ${formData.item.name}`}
+                </Typography>
+                <Typography>
+                  {formData.item.price}
+                </Typography>
+              </Stack>
+            </Stack>
+          </Paper>
+
+          <FormControlLabel
+            control={<Checkbox checked={extraItemsSelected} onChange={(e) => setExtraItemsSelected(e.target.checked)}/>}
+            label="Добавить дополнительные товары в выкуп"/>
+          {extraItemsSelected &&
+            <Stack>
+              {formData.extraItems && formData.extraItems.map(item => (
+                <Stack direction="row">
+                  <Box component="img" sx={{height: 100}} src={item.img} alt={""} />
+                  {item.label}
+                  <Button onClick={() => {
+                    const filteredItems = formData.extraItems.filter(currentItem => currentItem.num != item.num);
+                    setFormData({...formData, extraItems: filteredItems})
+                  }}>Remove</Button>
+                </Stack>))}
+              <ItemsSearch value={null} setValue={
+                (value) => {
+                  const doesAlreadyExist = (formData.extraItems || []).filter(item => item.num == value.num).length;
+                  if (!doesAlreadyExist)
+                    setFormData({...formData, extraItems: [...formData.extraItems, value]})
+                }}/>
+            </Stack>
+          }
+          </>
+        }
+        <Box>
+          <Typography>
+            Выкуп от:
+          </Typography>
+          <ToggleButtonGroup
+            color="primary"
+            value={formData.sex}
+            exclusive
+            onChange={(e) => {setFormData({...formData, sex: e.target.value})}}
+          >
+            <ToggleButton value="F">Женщины</ToggleButton>
+            <ToggleButton value="M">Мужчины</ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
         <Stack direction={"row"}>
-          <p>Выкуп от</p>
-          <Button>Женщины</Button>
-          <Button>Мужики</Button>
+          <TextField
+            value={formData.keyString}
+            onChange={(e) => {setFormData({...formData, keyString: e.target.value})}}
+            label="Ключевой запрос"
+            variant="outlined"
+          />
+          <Button disabled={!formData.keyString}>Фильтры</Button>
         </Stack>
-        <Stack direction={"row"}>
-          <TextField id="outlined-basic" label="Ключевой запрос" variant="outlined"/>
-          <Button>Фильтры</Button>
+        <Stack>
+          {formData.address &&
+            <Stack>{formData.address}</Stack>
+          }
+          <Button onClick={() => setIsMapOpen(true)}>
+            {formData.address ? 'Изменить Адрес Доставки' : 'Выбрать Адрес Доставки'}
+          </Button>
         </Stack>
-        <Button onClick={() => setIsMapOpen(true)}>Выбрать Адрес Доставки</Button>
         <FormControlLabel
           control={<Checkbox checked={competitorsSelected} onChange={(e) => setCompetitorsSelected(e.target.checked)}/>}
           label="Добавить товары конкурентов в корзину перед покупкой"/>
         {competitorsSelected &&
-          <TextField id="outlined-basic" label="Артикул товара в Wildberries или ссылка на товар" variant="outlined"/>}
+          <Stack>
+            {formData.competitorItems && formData.competitorItems.map(item => (
+              <Stack direction="row">
+                <Box component="img" sx={{height: 100}} src={item.img} alt={""} />
+                {item.label}
+                <Button onClick={() => {
+                  const filteredItems = formData.competitorItems.filter(currentItem => currentItem.num != item.num);
+                  setFormData({...formData, competitorItems: filteredItems})
+                }}>Remove</Button>
+              </Stack>))}
+            <ItemsSearch value={null} setValue={
+              (value) => {
+                const doesAlreadyExist = (formData.competitorItems || []).filter(item => item.num == value.num).length;
+                if (!doesAlreadyExist)
+                  setFormData({...formData, competitorItems: [...formData.competitorItems, value]})
+              }}/>
+          </Stack>
+        }
         <Button>Создать выкуп</Button>
       </Stack>
       <Modal
@@ -112,30 +173,13 @@ export default function CreateBuyoutForm() {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          bgcolor: 'background.paper',
-          border: '2px solid #000',
-          boxShadow: 24,
-          p: 4,
-        }}>
-          <MapContainer style={{height: 800, width: 1236}} center={position} zoom={13} scrollWheelZoom={true}>
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <Marker onClick={() => {
-              console.log('marker clicked')
-            }} position={position}>
-              <Popup>
-                A pretty CSS3 popup. <br/> Easily customizable.
-              </Popup>
-            </Marker>
-          </MapContainer>
-        </Box>
+        <DeliverySelection
+          deliveryAddresses={deliveryAddresses}
+          setAddress={(address) => {
+            setFormData({...formData, address: address})
+            setIsMapOpen(false)
+          }}
+        />
       </Modal>
     </Box>
   );

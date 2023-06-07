@@ -10,6 +10,7 @@ import Header from "./components/Header/Header";
 
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
+import MyItemsContextProvider from "./context/ItemsContext";
 
 function App() {
   return (
@@ -17,20 +18,22 @@ function App() {
       <CssBaseline/>
 
       <Router>
-      <Box sx={{display: 'flex'}}>
-        <LeftMenu/>
-        <Box sx={{width: "100%"}}>
-          <Header />
-          <Suspense fallback={<div>nothing here</div>}>
-            <Routes>
-              <Route exact path="/" element={<Navigate to="/my-items" replace/>}/>
-              <Route path="/my-items" element={<MyItems/>}/>
-              <Route path="/buyouts/:action?/:productId?" element={<Buyouts/>}/>
-              <Route path="/delivery" element={<Delivery/>}/>
-            </Routes>
-          </Suspense>
-        </Box>
-      </Box>
+        <MyItemsContextProvider>
+          <Box sx={{display: 'flex'}}>
+            <LeftMenu/>
+            <Box sx={{width: "100%"}}>
+              <Header/>
+              <Suspense fallback={<div>nothing here</div>}>
+                <Routes>
+                  <Route exact path="/" element={<Navigate to="/my-items" replace/>}/>
+                  <Route path="/my-items" element={<MyItems/>}/>
+                  <Route path="/buyouts/:action?/:productId?" element={<Buyouts/>}/>
+                  <Route path="/delivery" element={<Delivery/>}/>
+                </Routes>
+              </Suspense>
+            </Box>
+          </Box>
+        </MyItemsContextProvider>
       </Router>
     </div>
   );

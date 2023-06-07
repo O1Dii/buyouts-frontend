@@ -18,36 +18,25 @@ import Drawer from "@mui/material/Drawer";
 import {BUYOUT_STATUSES} from "../../constants/buyouts";
 
 export default function Buyouts() {
-  const items = [{
-    date: new Date(2023, 5, 13),
-    status: BUYOUT_STATUSES.AWAITING_PAYMENT,
-    name: 'Пижамы женские со штанами',
-    price: 2378,
-    address: 'г. Москва, м Китай-город'
-  }, {
-    date: new Date(2023, 5, 14),
-    status: BUYOUT_STATUSES.AWAITING_PAYMENT,
-    name: 'Пижамы мужские',
-    price: 255,
-    address: 'г. Москва, м Китай-город'
-  }];
-  const delivery_address_list = [...new Set(items.map(item => item.address))];
-  delivery_address_list.sort();
-
+  const filtersInitialState = {
+    status: '',
+    item: '',
+    delivery_address: ''
+  }
   const {action, productId} = useParams();
+  const [items, setItems] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
+  const [deliveryAddressList, setDeliveryAddressList] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const rightDrawerWidth = 1200;
   const navigate = useNavigate();
   const anchorRef = useRef("Drawer");
-  const [filters, setFilters] = useState({
-    status: '',
-    item: '',
-    delivery_address: ''
-  });
+  const [filters, setFilters] = useState(filtersInitialState);
+  const [reload, setReload] = useState(1);
 
   const onOutsideFormClick = (e) => {
     if (e.target.localName === 'body') {
-       return;
+      return;
     }
     if (anchorRef.current && anchorRef.current.contains(e.target)) {
       return;
@@ -57,11 +46,50 @@ export default function Buyouts() {
       navigate("/buyouts");
   }
 
-  console.log(action, productId, isFormOpen);
-
   useEffect(() => {
     setIsFormOpen(action === 'detail');
   }, [action])
+
+  useEffect(() => {
+    const receivedItems = [{
+      date: new Date(2023, 5, 13),
+      status: BUYOUT_STATUSES.AWAITING_PAYMENT,
+      name: 'Пижамы женские со штанами',
+      price: 2378,
+      address: 'г. Москва, м Китай-город'
+    }, {
+      date: new Date(2023, 5, 14),
+      status: BUYOUT_STATUSES.AWAITING_PAYMENT,
+      name: 'Пижамы мужские',
+      price: 255,
+      address: 'г. Москва, м Китай-город'
+    }]
+    setItems(receivedItems);
+    const delivery_address_list = [...new Set(receivedItems.map(item => item.address))];
+    delivery_address_list.sort();
+    setDeliveryAddressList(delivery_address_list)
+    /*
+    axios
+      .post(GET_SEARCH, {}, {})
+      .then(response => {
+        setOptions(response.data.options);  // TODO: check
+      })
+      .catch(error => {
+        console.error(error);
+      })
+     */
+  }, [reload]);
+
+  useEffect(() => {
+    console.log(filters);
+    setFilteredItems(items.filter(item => (
+      (!filters.status || item.status === filters.status) &&
+      (!filters.item || item.name === filters.item) &&
+      (!filters.delivery_address || item.address === filters.delivery_address)
+    )))
+  }, [reload, items, filters])
+
+  console.log(items, filteredItems, deliveryAddressList);
 
   return (
     <>
@@ -71,8 +99,8 @@ export default function Buyouts() {
       <Box>
         <Stack direction="row" justifyContent={"space-between"}>
           <Stack direction="row">
-            <Button>Reload</Button>
-            <Button>Clear</Button>
+            <Button onClick={() => {setReload(reload + 1)}}>Reload</Button>
+            <Button onClick={() => {setFilters(filtersInitialState)}}>Clear</Button>
           </Stack>
           <Stack direction="row">
             <Button>WB</Button>
@@ -88,7 +116,7 @@ export default function Buyouts() {
                 setFilters({...filters, status: e.target.value})
               }}
             >
-              {Object.entries(BUYOUT_STATUSES).map(([key, value]) => (<MenuItem value={key}>{value}</MenuItem>))}
+              {Object.values(BUYOUT_STATUSES).map(value => (<MenuItem value={value}>{value}</MenuItem>))}
             </Select>
           </FormControl>
           <FormControl xs={{minWidth: 150}}>
@@ -114,7 +142,7 @@ export default function Buyouts() {
                 setFilters({...filters, delivery_address: e.target.value})
               }}
             >
-              {delivery_address_list.map(item => <MenuItem value={item}>{item}</MenuItem>)}
+              {deliveryAddressList.map(item => <MenuItem value={item}>{item}</MenuItem>)}
             </Select>
           </FormControl>
           <Stack direction="row">
@@ -123,7 +151,7 @@ export default function Buyouts() {
           </Stack>
         </Stack>
         <Divider/>
-        <BuyoutsTable items={items} />
+        <BuyoutsTable items={filteredItems || items}/>
       </Box>
       <ClickAwayListener onClickAway={onOutsideFormClick}>
         <Drawer
