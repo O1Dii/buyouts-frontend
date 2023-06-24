@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  frontend-server:
+    build: .
+    image: frontend-server
+    command: "node server/index.js"
+    ports:
+#      port could be changed in server/index.js
+      - '5000:5000'
+    volumes:
+      - ./app:/app/app
+  frontend-build-artifacts:
+    build: .
+    image: base
+    command: "npm run build-dev"
+    volumes:
+      - .:/app

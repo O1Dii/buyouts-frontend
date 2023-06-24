@@ -15,7 +15,7 @@ for (const item of urls_list) {
 
 app.use('/static/dist', express.static(DIST_DIR))
 
-const PORT = process.env.PORT || 5000
+const PORT = 5000
 
 app.listen(PORT, () => {
   console.log(`App listening to ${PORT}....`)
