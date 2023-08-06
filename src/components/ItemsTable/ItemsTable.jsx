@@ -10,6 +10,8 @@ import Typography from '@mui/material/Typography';
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 
 import Pagination from '../Pagination/Pagination';
+import {accentButtonStyle} from "../../constants/styles";
+import {useEffect, useState} from "react";
 
 export default function ItemsTable({items}) {
   // pagination
@@ -20,45 +22,73 @@ export default function ItemsTable({items}) {
   const productsOnPage = 10;
   // end pagination
 
-  const data = items.map((product) => (
-    <Grid container spacing={2}>
-      <Grid xs={3}>
-        <Stack direction="row">
-          <Box component="img" sx={{height: 100}} src={product.img} alt={""} />
-          <Stack>
-            <Typography>
-              {product.num}
-            </Typography>
-            <Typography>
-            {product.date.toString()}
-            </Typography>
-          </Stack>
-        </Stack>
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const currentData = items.map((product) => (
+      <Grid container alignItems="center" spacing={2}>
+        <Grid sx={{display: "flex", alignItems: "center"}} xs={2}>
+          <Box component="img" sx={{height: 90, width: 90, objectFit: "cover"}} src={product.img} alt={""} />
+        </Grid>
+        <Grid xs={2}>
+          <strong>
+            {product.num}
+          </strong>
+        </Grid>
+        <Grid xs={3}>
+          {product.name}
+        </Grid>
+        <Grid xs={2}>
+          вчера, 19:44
+        </Grid>
+        <Grid xs={1}>
+          <strong>
+            {product.price} ₽
+          </strong>
+        </Grid>
+        <Grid xs={2}>
+          <Button sx={accentButtonStyle} component={Link} to={`/buyouts/create/${product.num}`}>Выкуп</Button>
+        </Grid>
       </Grid>
-      <Grid xs={5}>
-        {product.name}
-      </Grid>
-      <Grid xs={2}>
-        {product.price}
-      </Grid>
-      <Grid xs={2}>
-        <Button component={Link} to={`/buyouts/detail/${product.num}`}>Выкуп</Button>
-      </Grid>
-    </Grid>
-  ));
+    ))
+
+    if(currentData && currentData.length) {
+      setData(currentData);
+    } else {
+      setData(
+        <Box style={{backgroundColor: "#dbd1fd"}}>
+          <strong>
+            Нет добавленных товаров
+          </strong>
+        </Box>
+      )
+    }
+  }, [items]);
 
   return (
     <div className="buyouts-table">
       <Box sx={{flexGrow: 1}}>
-        <Grid container spacing={2}>
-          <Grid xs={3}>
-            Артикул
+        <Grid sx={{padding: "25px 0"}} container spacing={2}>
+          <Grid xs={2} />
+          <Grid xs={2}>
+            <strong>
+              Артикул
+            </strong>
           </Grid>
-          <Grid xs={5}>
-            Наименование
+          <Grid xs={3}>
+            <strong>
+              Наименование
+            </strong>
           </Grid>
           <Grid xs={2}>
-            Цена
+            <strong>
+              Добавлено
+            </strong>
+          </Grid>
+          <Grid xs={1}>
+            <strong>
+              Цена
+            </strong>
           </Grid>
           <Grid xs={2}/>
         </Grid>

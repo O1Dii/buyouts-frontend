@@ -11,6 +11,7 @@ import Header from "./components/Header/Header";
 import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import MyItemsContextProvider from "./context/ItemsContext";
+import UserContextProvider from "./context/UserContext";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
       <CssBaseline/>
 
       <Router>
+        <UserContextProvider>
         <MyItemsContextProvider>
           <Box sx={{display: 'flex'}}>
             <LeftMenu/>
@@ -34,6 +36,7 @@ function App() {
             </Box>
           </Box>
         </MyItemsContextProvider>
+        </UserContextProvider>
       </Router>
     </div>
   );

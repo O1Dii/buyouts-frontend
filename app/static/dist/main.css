@@ -65,6 +65,18 @@ code {
   }
 }
 
+.item-row:hover {
+    background-color: lightgrey;
+}
+.my-items {
+  margin: 50px 100px;
+}
+.left-menu .MuiDrawer-paper {
+  background-color: black;
+}
 
+.left-menu .MuiTypography-root {
+  color: white;
+}
 
 /*# sourceMappingURL=main.css.map*/

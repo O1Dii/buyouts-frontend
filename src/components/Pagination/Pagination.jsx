@@ -20,7 +20,7 @@ export default function Pagination({urlBase}) {
   // end pagination
 
   return (
-    <Stack direction="row">
+    <Stack direction="row" justifyContent="space-between" alignItems="center">
       <MuiPagination
         page={page}
         count={pagesCount}
@@ -34,20 +34,22 @@ export default function Pagination({urlBase}) {
           />
         )}
       />
-      <p>На странице</p>
-      <FormControl>
-        <Select
-          labelId="products-on-page-label"
-          id="products-on-page-select"
-          value={productsOnPage}
-          onChange={() => {
-          }}
-        >
-          <MenuItem value={5}>5</MenuItem>
-          <MenuItem value={10}>10</MenuItem>
-          <MenuItem value={15}>15</MenuItem>
-        </Select>
-      </FormControl>
+      <Stack direction="row" spacing={2}>
+        <p>На странице</p>
+        <FormControl>
+          <Select
+            labelId="products-on-page-label"
+            id="products-on-page-select"
+            value={productsOnPage}
+            onChange={() => {
+            }}
+          >
+            <MenuItem value={5}>5</MenuItem>
+            <MenuItem value={10}>10</MenuItem>
+            <MenuItem value={15}>15</MenuItem>
+          </Select>
+        </FormControl>
+      </Stack>
     </Stack>
   );
 }

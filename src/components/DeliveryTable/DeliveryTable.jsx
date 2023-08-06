@@ -20,12 +20,14 @@ export default function DeliveryTable({items}) {
   // end pagination
 
   const data = items.map((product) => (
-    <Grid container spacing={2}>
+    <Grid container alignItems="center" spacing={2} style={{minHeight: "90px"}}>
       <Grid xs={2}>
-        {product.date.toString()}
+        {product.date.toLocaleString()}
       </Grid>
       <Grid xs={2}>
-        {product.status}
+        <strong>
+          {product.status}
+        </strong>
       </Grid>
       <Grid xs={4}>
         {product.name}
@@ -37,20 +39,28 @@ export default function DeliveryTable({items}) {
   ));
 
   return (
-    <div className="buyouts-table">
+    <div className="buyouts-table" style={{width: "100%"}}>
       <Box sx={{flexGrow: 1}}>
-        <Grid container spacing={2}>
+        <Grid sx={{padding: "25px 0"}} container spacing={2}>
           <Grid xs={2}>
-            Оформлен
+            <strong>
+              Оформлен
+            </strong>
           </Grid>
           <Grid xs={2}>
-            Статус
+            <strong>
+              Статус
+            </strong>
           </Grid>
           <Grid xs={4}>
-            Наименование
+            <strong>
+              Наименование
+            </strong>
           </Grid>
           <Grid xs={4}>
-            Адрес ПВЗ
+            <strong>
+              Адрес ПВЗ
+            </strong>
           </Grid>
         </Grid>
         {data}

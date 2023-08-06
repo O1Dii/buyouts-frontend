@@ -11,6 +11,8 @@ import Typography from '@mui/material/Typography';
 // import Cloud from '@mui/icons-material/Cloud';
 import { Link } from "react-router-dom";
 
+import './left-menu.scss';
+
 import Drawer from '@mui/material/Drawer';
 
 export default function LeftMenu() {
@@ -26,24 +28,43 @@ export default function LeftMenu() {
           boxSizing: 'border-box',
         },
       }}
+      className="left-menu"
       variant="permanent"
       anchor="left"
     >
       <Toolbar>
         <Typography variant="h6" noWrap component="div">
-          Permanent drawer
+
         </Typography>
       </Toolbar>
       <Divider/>
       <MenuList>
-        <MenuItem>
-          <ListItem button component={Link} to={"/my-items"}>Мои товары</ListItem>
+        <MenuItem
+          component={Link}
+          to={"/my-items"}
+          // leftIcon={
+          //   <FontIcon className="material-icons">people</FontIcon>
+          // }
+        >
+          <Typography variant="button" display="block" gutterBottom>
+            Мои товары
+          </Typography>
         </MenuItem>
-        <MenuItem>
-          <ListItem button component={Link} to={"/buyouts"}>Выкупы</ListItem>
+        <MenuItem
+          component={Link}
+          to="/buyouts"
+        >
+          <Typography variant="button" display="block" gutterBottom>
+            Выкупы
+          </Typography>
         </MenuItem>
-        <MenuItem>
-          <ListItem button component={Link} to={"/delivery"}>Доставки</ListItem>
+        <MenuItem
+          component={Link}
+          to="/delivery"
+        >
+          <Typography variant="button" display="block" gutterBottom>
+            Доставки
+          </Typography>
         </MenuItem>
         {/*<MenuItem>*/}
           {/*<ListItemIcon>*/}
@@ -54,7 +75,6 @@ export default function LeftMenu() {
           {/*  ⌘V*/}
           {/*</Typography>*/}
         {/*</MenuItem>*/}
-        <Divider/>
         {/*<MenuItem>*/}
         {/*  <ListItemText>Web Clipboard</ListItemText>*/}
         {/*</MenuItem>*/}

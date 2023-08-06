@@ -9,20 +9,28 @@ export default function ItemsSearch({value, setValue}) {
 
   const getItemsFromSearch = (searchInput) => {
     setOptions([
-      {label: '№124531 abc', num: 124531, img: 'https://basket-01.wb.ru/vol1/part125/125454/images/c246x328/1.jpg'},
-      {label: '№54321 ffsdfg', num: 54321, img: 'https://basket-01.wb.ru/vol1/part125/125454/images/c246x328/1.jpg'},
-      {label: '№8135 hhghgh', num: 8135, img: 'https://basket-01.wb.ru/vol1/part125/125454/images/c246x328/1.jpg'},
+      {name: '№124531 abc', article: 124531, photoUrl: 'https://basket-01.wb.ru/vol1/part125/125454/images/c246x328/1.jpg'},
+      {name: '№54321 ffsdfg', article: 54321, photoUrl: 'https://basket-01.wb.ru/vol1/part125/125454/images/c246x328/1.jpg'},
+      {name: '№8135 hhghgh', article: 8135, photoUrl: 'https://basket-01.wb.ru/vol1/part125/125454/images/c246x328/1.jpg'},
     ]);
-    /*
-    axios
-      .post(GET_SEARCH, {}, {})
-      .then(response => {
-        setOptions(response.data.options);  // TODO: check
+
+    // eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2OTA4MDkxNzAsImV4cCI6MTY5MDg5NTU3MH0.OZjbOF9T_JTa8a2BlE-kmQUMP7eKzvNUKX3RDaPics4
+    fetch(`http://buyoutsapp:8080/api/v1/articles/${inputValue}/get`, {
+        method: 'GET', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1NTUiLCJpYXQiOjE2OTEzMzM3MzUsImV4cCI6MTY5MTQyMDEzNX0.-AY-P9NfuJHcy05LUQQLf01P2RMIoA_ldw6tkPvTkHE',
+          'Access-Control-Allow-Origin': '*'
+        }
       })
-      .catch(error => {
-        console.error(error);
+      .then((response) => {
+        return response.json();
       })
-     */
+      .then((data) => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.log('залупа')
+      });
   };
 
   return (
@@ -38,7 +46,7 @@ export default function ItemsSearch({value, setValue}) {
       }}
       options={options}
       filterOptions={x => x}
-      sx={{width: 300}}
+      sx={{width: "100%"}}
       renderInput={(params) => <TextField {...params} label="Артикул товара в Wildberries или ссылка на товар"/>}
     />
   );

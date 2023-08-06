@@ -4,6 +4,7 @@ import {useState, useEffect, useRef} from 'react';
 
 import BuyoutsTable from '../BuyoutsTable/BuyoutsTable';
 import CreateBuyoutForm from '../CreateBuyoutForm/CreateBuyoutForm';
+import DetailBuyoutForm from '../DetailBuyoutForm/DetailBuyoutForm';
 import {Button} from "@mui/material";
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -12,10 +13,14 @@ import Select from '@mui/material/Select';
 import Divider from "@mui/material/Divider";
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+import Grid from '@mui/material/Grid';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import {Link, useParams, useNavigate} from 'react-router-dom';
 import Drawer from "@mui/material/Drawer";
 import {BUYOUT_STATUSES} from "../../constants/buyouts";
+import Typography from "@mui/material/Typography";
+import {accentButtonStyle, buttonStyle} from "../../constants/styles";
+
 
 export default function Buyouts() {
   const filtersInitialState = {
@@ -28,7 +33,7 @@ export default function Buyouts() {
   const [filteredItems, setFilteredItems] = useState([]);
   const [deliveryAddressList, setDeliveryAddressList] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const rightDrawerWidth = 1200;
+  const rightDrawerWidth = "50%";
   const navigate = useNavigate();
   const anchorRef = useRef("Drawer");
   const [filters, setFilters] = useState(filtersInitialState);
@@ -47,17 +52,24 @@ export default function Buyouts() {
   }
 
   useEffect(() => {
-    setIsFormOpen(action === 'detail');
+    if(action === 'detail' && !productId) {
+      navigate('/buyouts');
+    }
+
+    const shouldFormBeOpen = action === 'create' || action === 'detail';
+    setIsFormOpen(shouldFormBeOpen);
   }, [action])
 
   useEffect(() => {
     const receivedItems = [{
+      id: 123,
       date: new Date(2023, 5, 13),
       status: BUYOUT_STATUSES.AWAITING_PAYMENT,
       name: 'Пижамы женские со штанами',
       price: 2378,
       address: 'г. Москва, м Китай-город'
     }, {
+      id: 333,
       date: new Date(2023, 5, 14),
       status: BUYOUT_STATUSES.AWAITING_PAYMENT,
       name: 'Пижамы мужские',
@@ -89,70 +101,76 @@ export default function Buyouts() {
     )))
   }, [reload, items, filters])
 
-  console.log(items, filteredItems, deliveryAddressList);
-
   return (
-    <>
-      <Box>
-        <Button><Link to={'detail/0'}>Создать выкуп</Link></Button>
-      </Box>
-      <Box>
-        <Stack direction="row" justifyContent={"space-between"}>
-          <Stack direction="row">
-            <Button onClick={() => {setReload(reload + 1)}}>Reload</Button>
-            <Button onClick={() => {setFilters(filtersInitialState)}}>Clear</Button>
+    <Box style={{margin: "50px 100px"}}>
+      <Grid container spacing={0}>
+        <Grid item xs={12}>
+          <Typography variant="h4" align="left" gutterBottom>
+            <strong>
+              Выкупы
+            </strong>
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body1" sx={{ color: "grey", textAlign: "left" }} gutterBottom>
+            Создайте выкуп на добавленный товар, оплатите и ожидайте его поступления.
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body1" sx={{ color: "grey", textAlign: "left", marginBottom: "20px" }} gutterBottom>
+            Далее вы сможете отслеживать статус выкупленного вами товара до доставки в выбранный пункт выдачи.
+          </Typography>
+        </Grid>
+        <Grid item xs={12} style={{display: "flex", justifyContent: "flex-start", marginBottom: "20px"}}>
+          <Button style={{...accentButtonStyle, width: "150px"}} onClick={() => navigate("create/0")}>Создать выкуп</Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Stack direction="row" justifyContent={"space-between"}>
+            <Button style={{...buttonStyle, width: "100px"}} onClick={() => {setReload(reload + 1)}}>Обновить</Button>
+            <Button style={{...buttonStyle, width: "100px"}} onClick={() => {setFilters(filtersInitialState)}}>Очистить</Button>
+            <FormControl sx={{minWidth: 150, width: 200}}>
+              <InputLabel id="status-select-label">Статус</InputLabel>
+              <Select
+                labelId="status-select-label"
+                id="status-select"
+                value={filters.status}
+                onChange={(e) => {
+                  setFilters({...filters, status: e.target.value})
+                }}
+              >
+                {Object.values(BUYOUT_STATUSES).map(value => (<MenuItem value={value}>{value}</MenuItem>))}
+              </Select>
+            </FormControl>
+            <FormControl sx={{minWidth: 150, width: 200}}>
+              <InputLabel id="item-select-label">Товар</InputLabel>
+              <Select
+                labelId="item-select-label"
+                id="item-select"
+                value={filters.item}
+                onChange={(e) => {
+                  setFilters({...filters, item: e.target.value})
+                }}
+              >
+                {items.map(item => <MenuItem value={item.name}>{item.name}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <FormControl sx={{minWidth: 150, width: 200}}>
+              <InputLabel id="delivery-address-select-label">ПВЗ</InputLabel>
+              <Select
+                labelId="delivery-address-select-label"
+                id="delivery-address-select"
+                value={filters.delivery_address}
+                onChange={(e) => {
+                  setFilters({...filters, delivery_address: e.target.value})
+                }}
+              >
+                {deliveryAddressList.map(item => <MenuItem value={item}>{item}</MenuItem>)}
+              </Select>
+            </FormControl>
           </Stack>
-          <Stack direction="row">
-            <Button>WB</Button>
-            <Button>OZON</Button>
-          </Stack>
-          <FormControl xs={{minWidth: 150}}>
-            <InputLabel id="status-select-label">Статус</InputLabel>
-            <Select
-              labelId="status-select-label"
-              id="status-select"
-              value={filters.status}
-              onChange={(e) => {
-                setFilters({...filters, status: e.target.value})
-              }}
-            >
-              {Object.values(BUYOUT_STATUSES).map(value => (<MenuItem value={value}>{value}</MenuItem>))}
-            </Select>
-          </FormControl>
-          <FormControl xs={{minWidth: 150}}>
-            <InputLabel id="item-select-label">Товар</InputLabel>
-            <Select
-              labelId="item-select-label"
-              id="item-select"
-              value={filters.item}
-              onChange={(e) => {
-                setFilters({...filters, item: e.target.value})
-              }}
-            >
-              {items.map(item => <MenuItem value={item.name}>{item.name}</MenuItem>)}
-            </Select>
-          </FormControl>
-          <FormControl xs={{minWidth: 150}}>
-            <InputLabel id="delivery-address-select-label">ПВЗ</InputLabel>
-            <Select
-              labelId="delivery-address-select-label"
-              id="delivery-address-select"
-              value={filters.delivery_address}
-              onChange={(e) => {
-                setFilters({...filters, delivery_address: e.target.value})
-              }}
-            >
-              {deliveryAddressList.map(item => <MenuItem value={item}>{item}</MenuItem>)}
-            </Select>
-          </FormControl>
-          <Stack direction="row">
-            <Button>Список</Button>
-            <Button>Архив</Button>
-          </Stack>
-        </Stack>
-        <Divider/>
+        </Grid>
         <BuyoutsTable items={filteredItems || items}/>
-      </Box>
+      </Grid>
       <ClickAwayListener onClickAway={onOutsideFormClick}>
         <Drawer
           sx={{
@@ -168,9 +186,12 @@ export default function Buyouts() {
           open={isFormOpen}
           ref={anchorRef}
         >
-          <CreateBuyoutForm/>
+          {action === 'detail' ?
+            <DetailBuyoutForm /> :
+            <CreateBuyoutForm/>
+          }
         </Drawer>
       </ClickAwayListener>
-    </>
+    </Box>
   );
 }
