@@ -1,36 +1,38 @@
-import {useState} from 'react';
+import {useContext, useState} from 'react';
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
+import axios from "axios";
+import {ARTICLES_GET_ARTICLE} from "../../constants/links";
+import {UserContext} from "../../context/UserContext";
+import Box from "@mui/material/Box";
+import {CircularProgress} from "@mui/material";
 
 
 export default function ItemsSearch({value, setValue}) {
   const [options, setOptions] = useState([]);
   const [inputValue, setInputValue] = useState('');
+  const {user} = useContext(UserContext);
+  const [loading, setLoading] = useState(false);
 
   const getItemsFromSearch = (searchInput) => {
-    setOptions([
-      {name: '№124531 abc', article: 124531, photoUrl: 'https://basket-01.wb.ru/vol1/part125/125454/images/c246x328/1.jpg'},
-      {name: '№54321 ffsdfg', article: 54321, photoUrl: 'https://basket-01.wb.ru/vol1/part125/125454/images/c246x328/1.jpg'},
-      {name: '№8135 hhghgh', article: 8135, photoUrl: 'https://basket-01.wb.ru/vol1/part125/125454/images/c246x328/1.jpg'},
-    ]);
-
-    // eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2OTA4MDkxNzAsImV4cCI6MTY5MDg5NTU3MH0.OZjbOF9T_JTa8a2BlE-kmQUMP7eKzvNUKX3RDaPics4
-    fetch(`http://buyoutsapp:8080/api/v1/articles/${inputValue}/get`, {
-        method: 'GET', // *GET, POST, PUT, DELETE, etc.
-        headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1NTUiLCJpYXQiOjE2OTEzMzM3MzUsImV4cCI6MTY5MTQyMDEzNX0.-AY-P9NfuJHcy05LUQQLf01P2RMIoA_ldw6tkPvTkHE',
-          'Access-Control-Allow-Origin': '*'
+    setLoading(true)
+    axios
+      .get(ARTICLES_GET_ARTICLE(searchInput), {
+        headers:{
+          'Authorization': `Bearer ${user.accessToken}`,
         }
       })
-      .then((response) => {
-        return response.json();
+      .then(response => {
+        console.log(response);
+        setOptions([{label: response.data.name, ...response.data}]);
+        setLoading(false);
+        // {"article":58464968,"photoUrl":"https://basket-04.wb.ru/vol584/part58464/58464968/images/big/1.jpg",
+        // "name":"Кроп топ под пиджак","price":"735","fullPrice":"2100","sizes":["42 42","44 44","46 46","48 48","50 50","52 52"]}
+        // {name: '№124531 abc', article: 124531, photoUrl: 'https://basket-01.wb.ru/vol1/part125/125454/images/c246x328/1.jpg'}
       })
-      .then((data) => {
-        console.log(data);
+      .catch(error => {
+        setLoading(false);
       })
-      .catch((error) => {
-        console.log('залупа')
-      });
   };
 
   return (
@@ -44,10 +46,35 @@ export default function ItemsSearch({value, setValue}) {
         setInputValue(newInputValue);
         getItemsFromSearch(newInputValue);
       }}
+      renderOption={(props, option) => (
+        <Box component="li" sx={{ '& > img': { mr: 2, flexShrink: 0 } }} {...props}>
+          <img
+            loading="lazy"
+            width="20"
+            src={option.photoUrl}
+            alt=""
+          />
+          №{option.article} {option.label}
+        </Box>
+      )}
       options={options}
       filterOptions={x => x}
       sx={{width: "100%"}}
-      renderInput={(params) => <TextField {...params} label="Артикул товара в Wildberries или ссылка на товар"/>}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          label="Артикул товара в Wildberries"
+          InputProps={{
+            ...params.InputProps,
+            endAdornment: (
+              <>
+                {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                {params.InputProps.endAdornment}
+              </>
+            ),
+          }}
+        />
+      )}
     />
   );
 }

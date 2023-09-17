@@ -11,31 +11,38 @@ import {MyItemsContext} from '../../context/ItemsContext';
 import ItemsSearch from '../ItemsSearch/ItemsSearch';
 import "./my-items.scss";
 
-import {GET_SEARCH, ADD_ITEM} from '../../constants/links';
+import {GET_SEARCH, ADD_ITEM, ARTICLES_ADD_NEW_ARTICLE} from '../../constants/links';
 
 import axios from 'axios';
+import {UserContext} from "../../context/UserContext";
 
 
 export default function MyItems() {
   const {myItems, loadItems, loading} = useContext(MyItemsContext);
   const [value, setValue] = useState(null);
+  const {user} = useContext(UserContext);
 
   useEffect(() => {
     console.log(loadItems());
   }, []);
 
   const addItem = () => {
-    if (value) {
-      /*
-  axios
-    .post(ADD_ITEM, {item_id: value}, {})
-    .then(response => {
-      loadItems();  // TODO: check
-    })
-    .catch(error => {
-      console.error(error);
-    })
-   */
+    console.log(value);
+    if (value && value.article) {
+      axios
+        .post(ARTICLES_ADD_NEW_ARTICLE(), {
+          "article": value.article,
+          "photoUrl": value.photoUrl,
+          "name": value.name,
+          "price": value.price,
+          "fullPrice": value.fullPrice
+        }, {headers: {'Authorization': `Bearer ${user.accessToken}`}})
+        .then(response => {
+          loadItems();  // TODO: check
+        })
+        .catch(error => {
+          console.error(error);
+        })
     }
   }
 

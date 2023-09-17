@@ -5,12 +5,10 @@ import {BrowserRouter as Router, Route, Navigate, Routes} from 'react-router-dom
 import Buyouts from './components/Buyouts/Buyouts';
 import MyItems from './components/MyItems/MyItems';
 import Delivery from './components/Delivery/Delivery';
-import LeftMenu from "./components/LeftMenu/LeftMenu";
-import Header from "./components/Header/Header";
+import LoggedInLayout from "./components/LoggedInLayout/LoggedInLayout";
+import Login from "./components/Login/Login";
 
 import CssBaseline from "@mui/material/CssBaseline";
-import Box from "@mui/material/Box";
-import MyItemsContextProvider from "./context/ItemsContext";
 import UserContextProvider from "./context/UserContext";
 
 function App() {
@@ -20,22 +18,15 @@ function App() {
 
       <Router>
         <UserContextProvider>
-        <MyItemsContextProvider>
-          <Box sx={{display: 'flex'}}>
-            <LeftMenu/>
-            <Box sx={{width: "100%"}}>
-              <Header/>
-              <Suspense fallback={<div>nothing here</div>}>
-                <Routes>
-                  <Route exact path="/" element={<Navigate to="/my-items" replace/>}/>
-                  <Route path="/my-items" element={<MyItems/>}/>
-                  <Route path="/buyouts/:action?/:productId?" element={<Buyouts/>}/>
-                  <Route path="/delivery" element={<Delivery/>}/>
-                </Routes>
-              </Suspense>
-            </Box>
-          </Box>
-        </MyItemsContextProvider>
+          <Routes>
+              <Route path="/login" element={<Login />}/>
+              <Route element={<LoggedInLayout />}>
+                <Route exact path="/" element={<Navigate to="/my-items" replace/>}/>
+                <Route path="/my-items" element={<MyItems/>}/>
+                <Route path="/buyouts/:action?/:productId?" element={<Buyouts/>}/>
+                <Route path="/delivery" element={<Delivery/>}/>
+              </Route>
+          </Routes>
         </UserContextProvider>
       </Router>
     </div>

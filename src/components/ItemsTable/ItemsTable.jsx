@@ -28,11 +28,11 @@ export default function ItemsTable({items}) {
     const currentData = items.map((product) => (
       <Grid container alignItems="center" spacing={2}>
         <Grid sx={{display: "flex", alignItems: "center"}} xs={2}>
-          <Box component="img" sx={{height: 90, width: 90, objectFit: "cover"}} src={product.img} alt={""} />
+          <Box component="img" sx={{height: 90, width: 90, objectFit: "cover"}} src={product.photoUrl} alt={""} />
         </Grid>
         <Grid xs={2}>
           <strong>
-            {product.num}
+            {product.article}
           </strong>
         </Grid>
         <Grid xs={3}>
@@ -43,7 +43,8 @@ export default function ItemsTable({items}) {
         </Grid>
         <Grid xs={1}>
           <strong>
-            {product.price} ₽
+            {product.price} ₽<br/>
+            <s>{product.fullPrice}</s> ₽
           </strong>
         </Grid>
         <Grid xs={2}>
