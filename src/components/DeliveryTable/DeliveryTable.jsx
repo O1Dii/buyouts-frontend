@@ -9,15 +9,13 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 import Pagination from '../Pagination/Pagination';
+import {useState} from "react";
 
 export default function DeliveryTable({items}) {
-  // pagination
-  const pagesCount = 10;
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const page = parseInt(query.get('page') || '1', 10);
-  const productsOnPage = 10;
-  // end pagination
+  const [productsOnPage, setProductsOnPage] = useState(10);
 
   const data = items.map((product) => (
     <Grid container alignItems="center" spacing={2} style={{minHeight: "90px"}}>
@@ -65,7 +63,9 @@ export default function DeliveryTable({items}) {
         </Grid>
         {data}
       </Box>
-      <Pagination urlBase="delivery"/>
+      {items &&
+      <Pagination urlBase="delivery" itemsLen={items.length} productsOnPage={productsOnPage} setProductsOnPage={setProductsOnPage}/>
+      }
     </div>
   );
 }

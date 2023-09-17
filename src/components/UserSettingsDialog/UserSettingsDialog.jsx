@@ -15,7 +15,7 @@ import {UserContext} from "../../context/UserContext";
 import {accentButtonStyle, buttonStyle} from "../../constants/styles";
 
 export default function UserSettingsDialog() {
-  const {user} = useContext(UserContext);
+  const {user, logout} = useContext(UserContext);
 
   return (
     <Grid container alignItems="center" spacing={2}>
@@ -50,7 +50,7 @@ export default function UserSettingsDialog() {
         </Button>
       </Grid>
       <Grid item xs={12}>
-        <Button style={buttonStyle}>
+        <Button onClick={logout} style={buttonStyle}>
           Выход
         </Button>
       </Grid>

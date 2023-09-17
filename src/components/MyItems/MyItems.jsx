@@ -23,8 +23,9 @@ export default function MyItems() {
   const {user} = useContext(UserContext);
 
   useEffect(() => {
-    console.log(loadItems());
-  }, []);
+    if (JSON.stringify(user) !== '{}')
+      loadItems();
+  }, [user]);
 
   const addItem = () => {
     console.log(value);

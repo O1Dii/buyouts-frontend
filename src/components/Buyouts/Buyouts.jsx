@@ -1,6 +1,6 @@
 import './buyouts.css';
 
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect, useRef, useContext} from 'react';
 
 import BuyoutsTable from '../BuyoutsTable/BuyoutsTable';
 import CreateBuyoutForm from '../CreateBuyoutForm/CreateBuyoutForm';
@@ -20,6 +20,10 @@ import Drawer from "@mui/material/Drawer";
 import {BUYOUT_STATUSES} from "../../constants/buyouts";
 import Typography from "@mui/material/Typography";
 import {accentButtonStyle, buttonStyle} from "../../constants/styles";
+import axios from "axios";
+import {BUYOUTS_GET_ALL_BUYOUTS} from "../../constants/links";
+import {UserContext} from "../../context/UserContext";
+import Skeleton from "@mui/material/Skeleton";
 
 
 export default function Buyouts() {
@@ -28,6 +32,7 @@ export default function Buyouts() {
     item: '',
     delivery_address: ''
   }
+  const {user} = useContext(UserContext);
   const {action, productId} = useParams();
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
@@ -38,6 +43,7 @@ export default function Buyouts() {
   const anchorRef = useRef("Drawer");
   const [filters, setFilters] = useState(filtersInitialState);
   const [reload, setReload] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   const onOutsideFormClick = (e) => {
     if (e.target.localName === 'body') {
@@ -61,35 +67,39 @@ export default function Buyouts() {
   }, [action])
 
   useEffect(() => {
-    const receivedItems = [{
-      id: 123,
-      date: new Date(2023, 5, 13),
-      status: BUYOUT_STATUSES.AWAITING_PAYMENT,
-      name: 'Пижамы женские со штанами',
-      price: 2378,
-      address: 'г. Москва, м Китай-город'
-    }, {
-      id: 333,
-      date: new Date(2023, 5, 14),
-      status: BUYOUT_STATUSES.AWAITING_PAYMENT,
-      name: 'Пижамы мужские',
-      price: 255,
-      address: 'г. Москва, м Китай-город'
-    }]
-    setItems(receivedItems);
-    const delivery_address_list = [...new Set(receivedItems.map(item => item.address))];
-    delivery_address_list.sort();
-    setDeliveryAddressList(delivery_address_list)
-    /*
+    // const receivedItems = [{
+    //   id: 123,
+    //   date: new Date(2023, 5, 13),
+    //   status: BUYOUT_STATUSES.AWAITING_PAYMENT,
+    //   name: 'Пижамы женские со штанами',
+    //   price: 2378,
+    //   address: 'г. Москва, м Китай-город'
+    // }, {
+    //   id: 333,
+    //   date: new Date(2023, 5, 14),
+    //   status: BUYOUT_STATUSES.AWAITING_PAYMENT,
+    //   name: 'Пижамы мужские',
+    //   price: 255,
+    //   address: 'г. Москва, м Китай-город'
+    // }]
+    setLoading(true);
     axios
-      .post(GET_SEARCH, {}, {})
+      .get(BUYOUTS_GET_ALL_BUYOUTS(), {
+        headers:{
+          'Authorization': `Bearer ${user.accessToken}`,
+        }
+      })
       .then(response => {
-        setOptions(response.data.options);  // TODO: check
+        const receivedItems = response.data;
+        setItems(receivedItems);
+        const delivery_address_list = [...new Set(receivedItems.map(item => item.address))];
+        delivery_address_list.sort();
+        setDeliveryAddressList(delivery_address_list);
+        setLoading(false);
       })
       .catch(error => {
-        console.error(error);
+        setLoading(false);
       })
-     */
   }, [reload]);
 
   useEffect(() => {
@@ -169,7 +179,14 @@ export default function Buyouts() {
             </FormControl>
           </Stack>
         </Grid>
-        <BuyoutsTable items={filteredItems || items}/>
+        {loading ?
+          <>
+            <Skeleton variant="rounded" height={90} style={{marginTop: 20 }} />
+            <Skeleton variant="rounded" height={90} style={{marginTop: 20 }} />
+            <Skeleton variant="rounded" height={90} style={{marginTop: 20 }} />
+          </> :
+          <BuyoutsTable items={filteredItems || items}/>
+        }
       </Grid>
       <ClickAwayListener onClickAway={onOutsideFormClick}>
         <Drawer

@@ -1,9 +1,9 @@
 import React, {Suspense, useContext, useEffect, useState} from "react";
-import {Outlet, useNavigate} from 'react-router-dom';
+import {Link, Outlet, useNavigate} from 'react-router-dom';
 
 import TextField from "@mui/material/TextField";
 import {UserContext} from "../../context/UserContext";
-import {accentButtonStyle} from "../../constants/styles";
+import {accentButtonStyle, buttonStyle} from "../../constants/styles";
 import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
@@ -37,6 +37,7 @@ function LoggedInLayout() {
             }}>
               Войти
             </Button>
+            <Button sx={{...buttonStyle}} component={Link} to={"https://t.me/test_buyout_bot"}>Telegram Регистрация</Button>
           </Stack>
         </Grid>
       </Grid>

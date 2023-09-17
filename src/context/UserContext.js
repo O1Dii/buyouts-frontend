@@ -5,13 +5,25 @@ import {useNavigate} from "react-router-dom";
 
 export const UserContext = React.createContext({
   user: {},
+  loading: false,
+  logout: () => {},
   setUser: () => {}
 });
 
 export default function UserContextProvider(props) {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   // requestInfo (status, detail, data)
+
+  useEffect(() => {
+    const localStorageUserInfo = localStorage.getItem('user');
+    if (localStorageUserInfo) {
+      setUser(JSON.parse(localStorageUserInfo));
+    } else {
+      logout();
+    }
+  }, [])
 
   const authenticate = (login, password) => {
     setLoading(true);
@@ -19,15 +31,17 @@ export default function UserContextProvider(props) {
       .post(AUTHENTICATE(), {phoneNumber: login, password})
       .then(response => {
         setLoading(false);
-        setUser({
+        const userObject = {
           name: "Алексей",
           surname: "Прокопенко",
           phone: "+375447720161",
           picture: "https://basket-01.wb.ru/vol68/part6872/6872871/images/big/1.jpg",
           balance: 150,
           accessToken: response.data.access_token
-        })
-        console.log(response.data)
+        }
+        setUser(userObject);
+        localStorage.removeItem('user');
+        localStorage.setItem('user', JSON.stringify(userObject))
       })
       .catch(error => {
         setLoading(false);
@@ -35,8 +49,16 @@ export default function UserContextProvider(props) {
       })
   }
 
+  const logout = () => {
+    localStorage.removeItem('user');
+    setUser({});
+    navigate("/login");
+  }
+
   const context = {
     user,
+    loading,
+    logout,
     authenticate
   }
 

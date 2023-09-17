@@ -15,14 +15,15 @@ import {useEffect, useState} from "react";
 
 export default function ItemsTable({items}) {
   // pagination
-  const pagesCount = 10;
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const page = parseInt(query.get('page') || '1', 10);
-  const productsOnPage = 10;
+  const [productsOnPage, setProductsOnPage] = useState(10);
   // end pagination
 
   const [data, setData] = useState([]);
+
+  console.log(items);
 
   useEffect(() => {
     const currentData = items.map((product) => (
@@ -44,11 +45,11 @@ export default function ItemsTable({items}) {
         <Grid xs={1}>
           <strong>
             {product.price} ₽<br/>
-            <s>{product.fullPrice}</s> ₽
+            {product.fullPrice && <><s>{product.fullPrice}</s> ₽</>}
           </strong>
         </Grid>
         <Grid xs={2}>
-          <Button sx={accentButtonStyle} component={Link} to={`/buyouts/create/${product.num}`}>Выкуп</Button>
+          <Button sx={accentButtonStyle} component={Link} to={`/buyouts/create/${product.article}`}>Выкуп</Button>
         </Grid>
       </Grid>
     ))
@@ -57,7 +58,7 @@ export default function ItemsTable({items}) {
       setData(currentData);
     } else {
       setData(
-        <Box style={{backgroundColor: "#dbd1fd"}}>
+        <Box sx={{backgroundColor: "#dbd1fd", padding: "15px", borderRadius: "15px"}}>
           <strong>
             Нет добавленных товаров
           </strong>
@@ -95,7 +96,9 @@ export default function ItemsTable({items}) {
         </Grid>
         {data}
       </Box>
-      <Pagination urlBase="my-items"/>
+      {items &&
+      <Pagination urlBase="my-items" itemsLen={items.length} productsOnPage={productsOnPage} setProductsOnPage={setProductsOnPage}/>
+      }
     </div>
   );
 }

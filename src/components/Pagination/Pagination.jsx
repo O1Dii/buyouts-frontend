@@ -9,17 +9,20 @@ import FormControl from '@mui/material/FormControl';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Select, {SelectChangeEvent} from '@mui/material/Select';
+import {useEffect, useState} from "react";
 
-export default function Pagination({urlBase}) {
+export default function Pagination({urlBase, itemsLen, productsOnPage, setProductsOnPage}) {
   // pagination
-  const pagesCount = 10;
   const location = useLocation();
   const query = new URLSearchParams(location.search);
   const page = parseInt(query.get('page') || '1', 10);
-  const productsOnPage = 10;
+  const [pagesCount, setPagesCount] = useState(1);
+  useEffect(() => {
+    setPagesCount(Math.ceil(itemsLen / productsOnPage));
+  }, [productsOnPage, itemsLen])
   // end pagination
 
-  return (
+  return (itemsLen ?
     <Stack direction="row" justifyContent="space-between" alignItems="center">
       <MuiPagination
         page={page}
@@ -41,7 +44,8 @@ export default function Pagination({urlBase}) {
             labelId="products-on-page-label"
             id="products-on-page-select"
             value={productsOnPage}
-            onChange={() => {
+            onChange={(e) => {
+              setProductsOnPage(e.target.value);
             }}
           >
             <MenuItem value={5}>5</MenuItem>
@@ -51,5 +55,7 @@ export default function Pagination({urlBase}) {
         </FormControl>
       </Stack>
     </Stack>
+      :
+    <></>
   );
 }

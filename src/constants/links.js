@@ -4,6 +4,7 @@ export const ARTICLES_GET_ALL_ARTICLES = () => `${API_BASE}articles`;
 export const ARTICLES_ADD_NEW_ARTICLE = () => `${API_BASE}articles`;
 export const ARTICLES_GET_ARTICLE_DETAILS = (articleId) => `${API_BASE}articles/${articleId}`;
 export const ARTICLES_GET_ARTICLE = (articleId) => `${API_BASE}articles/${articleId}/get`;
+export const ARTICLES_GET_AND_UPDATE_ARTICLE = (articleId) => `${API_BASE}articles/${articleId}`;
 
 export const BUYOUTS_GET_ALL_BUYOUTS = () => `${API_BASE}buyouts`
 export const BUYOUTS_CREATE_NEW_BUYOUT = () => `${API_BASE}buyouts`

@@ -15,6 +15,8 @@ import InputLabel from "@mui/material/InputLabel";
 import {MapContainer, Marker, Popup, TileLayer, useMap} from "react-leaflet";
 import {ItemsContext, MyItemsContext} from '../../context/ItemsContext';
 import Autocomplete from "@mui/material/Autocomplete";
+import {buttonStyle} from "../../constants/styles";
+import Typography from "@mui/material/Typography";
 
 
 export default function DeliverySelection({deliveryAddresses, setAddress}) {
@@ -62,7 +64,7 @@ export default function DeliverySelection({deliveryAddresses, setAddress}) {
   }
 
   return (
-    <Box sx={{
+    <Stack direction="horizontal" sx={{
       position: 'absolute',
       top: '50%',
       left: '50%',
@@ -72,7 +74,7 @@ export default function DeliverySelection({deliveryAddresses, setAddress}) {
       boxShadow: 24,
       p: 4,
     }}>
-      <MapContainer style={{height: 800, width: 1236}} center={minskPosition} zoom={13} scrollWheelZoom={true}>
+      <MapContainer style={{height: 800, width: 800}} center={minskPosition} zoom={13} scrollWheelZoom={true}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -81,28 +83,30 @@ export default function DeliverySelection({deliveryAddresses, setAddress}) {
         {deliveryAddresses.map(address => (
           <Marker position={address.position}>
             <Popup>
-              {address.name}
-              <Button onClick={() => {setAddress(address.name)}}>Выбрать</Button>
+              <Stack>
+                <Typography>
+                  {address.name}
+                </Typography>
+                <Button style={{...buttonStyle}} onClick={() => {setAddress(address.name)}}>Выбрать</Button>
+              </Stack>
             </Popup>
           </Marker>
         ))}
       </MapContainer>
-      <Stack>
-        <Autocomplete
-          value={value}
-          onChange={(event, newValue) => {
-            setView(newValue.pos)
-            setValue(newValue);
-          }}
-          inputValue={inputValue}
-          onInputChange={(event, newInputValue) => {
-            setInputValue(newInputValue);
-          }}
-          options={deliveryAddresses.map(address => ({label: address.name, pos: address.position}))}
-          sx={{width: 300}}
-          renderInput={(params) => <TextField {...params} label="Поиск по адресу ПВЗ"/>}
-        />
-      </Stack>
-    </Box>
+      <Autocomplete
+        value={value}
+        onChange={(event, newValue) => {
+          setView(newValue.pos)
+          setValue(newValue);
+        }}
+        inputValue={inputValue}
+        onInputChange={(event, newInputValue) => {
+          setInputValue(newInputValue);
+        }}
+        options={deliveryAddresses.map(address => ({label: address.name, pos: address.position}))}
+        sx={{width: 300, marginLeft: "20px"}}
+        renderInput={(params) => <TextField {...params} label="Поиск по адресу ПВЗ"/>}
+      />
+    </Stack>
   );
 }
