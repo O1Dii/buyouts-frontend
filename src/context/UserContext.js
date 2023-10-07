@@ -55,11 +55,16 @@ export default function UserContextProvider(props) {
     navigate("/login");
   }
 
+  const hasUser = () => {
+    return JSON.stringify(user) !== '{}'
+  }
+
   const context = {
     user,
     loading,
     logout,
-    authenticate
+    authenticate,
+    hasUser
   }
 
   return (

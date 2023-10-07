@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext} from "react";
 import axios from 'axios';
-import {ARTICLES_GET_ALL_ARTICLES} from '../constants/links';
+import {ARTICLES_GET_ALL_ARTICLES, GET_DELIVERY_ADDRESSES} from '../constants/links';
 import {UserContext} from "../context/UserContext";
 
 export const MyItemsContext = React.createContext({
@@ -35,6 +35,18 @@ export default function MyItemsContextProvider(props) {
   }
 
   useEffect(() => {
+    axios
+      .get(GET_DELIVERY_ADDRESSES(), {
+        headers:{
+          'Authorization': `Bearer ${user.accessToken}`,
+        }
+      })
+      .then(response => {
+        if ([200, 201].contains(response.status)) {
+          setDeliveryAddresses(response.data)
+        }
+      }, [user.accessToken])
+
     setDeliveryAddresses([{
       position: [55.755834, 37.6154],
       name: 'ул. Николы Тесла 16'

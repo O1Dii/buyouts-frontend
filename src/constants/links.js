@@ -13,3 +13,5 @@ export const BUYOUTS_GET_BUYOUT_STATUS = (id) => `${API_BASE}buyouts/${id}/statu
 export const BUYOUTS_GET_PAYMENT_QR = (id) => `${API_BASE}buyouts/${id}/payment/qrcode`
 
 export const AUTHENTICATE = () => `${API_BASE}auth/authenticate`
+
+export const GET_DELIVERY_ADDRESSES = () => `${API_BASE}delivery_addresses`

@@ -20,10 +20,10 @@ import {UserContext} from "../../context/UserContext";
 export default function MyItems() {
   const {myItems, loadItems, loading} = useContext(MyItemsContext);
   const [value, setValue] = useState(null);
-  const {user} = useContext(UserContext);
+  const {user, hasUser} = useContext(UserContext);
 
   useEffect(() => {
-    if (JSON.stringify(user) !== '{}')
+    if (hasUser())
       loadItems();
   }, [user]);
 

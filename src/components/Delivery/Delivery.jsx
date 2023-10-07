@@ -10,7 +10,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Divider from "@mui/material/Divider";
 import DeliveryTable from "../DeliveryTable/DeliveryTable";
 import Box from "@mui/material/Box";
-import {BUYOUT_STATUSES} from "../../constants/buyouts";
+import {BUYOUT_STATUSES_NAMES} from "../../constants/buyouts";
 import {buttonStyle} from "../../constants/styles";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
@@ -32,12 +32,12 @@ export default function Delivery() {
   useEffect(() => {
     const receivedItems = [{
       date: new Date(2023, 5, 13),
-      status: BUYOUT_STATUSES.ERROR,
+      status: BUYOUT_STATUSES_NAMES.ERROR,
       name: 'Пижамы женские со штанами',
       address: "Какой-то ПВЗ"
     }, {
       date: new Date(2023, 5, 14),
-      status: BUYOUT_STATUSES.ERROR,
+      status: BUYOUT_STATUSES_NAMES.ERROR,
       name: 'Пижамы мужские',
       address: "Какой-то ПВЗ 2"
     }];
@@ -91,7 +91,7 @@ export default function Delivery() {
                   setFilters({...filters, status: e.target.value})
                 }}
               >
-                {Object.values(BUYOUT_STATUSES).map(value => (<MenuItem value={value}>{value}</MenuItem>))}
+                {Object.values(BUYOUT_STATUSES_NAMES).map(value => (<MenuItem value={value}>{value}</MenuItem>))}
               </Select>
             </FormControl>
             <FormControl sx={{minWidth: 150, width: 200}}>

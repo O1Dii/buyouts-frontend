@@ -18,7 +18,7 @@ import {MyItemsContext} from '../../context/ItemsContext';
 import DeliverySelection from '../DeliverySelection/DeliverySelection';
 import ItemsSearch from '../ItemsSearch/ItemsSearch';
 import Typography from "@mui/material/Typography";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {UserContext} from "../../context/UserContext";
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
@@ -34,7 +34,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 
 
 export default function CreateBuyoutForm() {
-  const {user} = useContext(UserContext);
+  const {user, hasUser} = useContext(UserContext);
   const {myItems, deliveryAddresses, loadItems} = useContext(MyItemsContext);
   const {productId} = useParams();
 
@@ -64,11 +64,12 @@ export default function CreateBuyoutForm() {
 
   const [competitorsSelected, setCompetitorsSelected] = useState(false);
   const [extraItemsSelected, setExtraItemsSelected] = useState(false);
+  const navigate = useNavigate();
 
   const [isMapOpen, setIsMapOpen] = useState(false);
 
   useEffect(() => {
-    if (JSON.stringify(user) !== '{}')
+    if (hasUser())
       loadItems()
   }, [user])
 
@@ -115,8 +116,11 @@ export default function CreateBuyoutForm() {
         }
       })
       .then(response => {
-        if ([200, 201].contains(response.status)) {
-          setFormData({...formData, item: response.data});
+        if (response.status === 201) {
+          navigate("/buyouts");
+        }
+        if (response.status === 402) {
+          alert('Недостаточно средств на балансе')
         }
       })
   }
@@ -161,6 +165,7 @@ export default function CreateBuyoutForm() {
             </Stack>
           </Paper>
 
+          {formData.item.sizes && formData.item.sizes.length &&
           <FormControl sx={{width: "100%", marginTop: "20px"}}>
             <InputLabel id="delivery-address-select-label">Размер</InputLabel>
             <Select
@@ -174,6 +179,7 @@ export default function CreateBuyoutForm() {
               {formData.item.sizes.map(size => <MenuItem value={size}>{size}</MenuItem>)}
             </Select>
           </FormControl>
+          }
 
           <FormControlLabel
             sx={{marginTop: "20px"}}

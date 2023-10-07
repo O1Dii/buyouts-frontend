@@ -17,7 +17,7 @@ import Grid from '@mui/material/Grid';
 import ClickAwayListener from '@mui/base/ClickAwayListener';
 import {Link, useParams, useNavigate} from 'react-router-dom';
 import Drawer from "@mui/material/Drawer";
-import {BUYOUT_STATUSES} from "../../constants/buyouts";
+import {BUYOUT_STATUSES_NAMES} from "../../constants/buyouts";
 import Typography from "@mui/material/Typography";
 import {accentButtonStyle, buttonStyle} from "../../constants/styles";
 import axios from "axios";
@@ -32,7 +32,7 @@ export default function Buyouts() {
     item: '',
     delivery_address: ''
   }
-  const {user} = useContext(UserContext);
+  const {user, hasUser} = useContext(UserContext);
   const {action, productId} = useParams();
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
@@ -70,18 +70,20 @@ export default function Buyouts() {
     // const receivedItems = [{
     //   id: 123,
     //   date: new Date(2023, 5, 13),
-    //   status: BUYOUT_STATUSES.AWAITING_PAYMENT,
+    //   status: BUYOUT_STATUSES_NAMES.AWAITING_PAYMENT,
     //   name: 'Пижамы женские со штанами',
     //   price: 2378,
     //   address: 'г. Москва, м Китай-город'
     // }, {
     //   id: 333,
     //   date: new Date(2023, 5, 14),
-    //   status: BUYOUT_STATUSES.AWAITING_PAYMENT,
+    //   status: BUYOUT_STATUSES_NAMES.AWAITING_PAYMENT,
     //   name: 'Пижамы мужские',
     //   price: 255,
     //   address: 'г. Москва, м Китай-город'
     // }]
+    if (!hasUser())
+      return
     setLoading(true);
     axios
       .get(BUYOUTS_GET_ALL_BUYOUTS(), {
@@ -100,7 +102,7 @@ export default function Buyouts() {
       .catch(error => {
         setLoading(false);
       })
-  }, [reload]);
+  }, [user, reload]);
 
   useEffect(() => {
     console.log(filters);
@@ -110,6 +112,9 @@ export default function Buyouts() {
       (!filters.delivery_address || item.address === filters.delivery_address)
     )))
   }, [reload, items, filters])
+
+
+  console.log(items, filteredItems);
 
   return (
     <Box style={{margin: "50px 100px"}}>
@@ -148,7 +153,7 @@ export default function Buyouts() {
                   setFilters({...filters, status: e.target.value})
                 }}
               >
-                {Object.values(BUYOUT_STATUSES).map(value => (<MenuItem value={value}>{value}</MenuItem>))}
+                {Object.values(BUYOUT_STATUSES_NAMES).map(value => (<MenuItem value={value}>{value}</MenuItem>))}
               </Select>
             </FormControl>
             <FormControl sx={{minWidth: 150, width: 200}}>
@@ -204,7 +209,7 @@ export default function Buyouts() {
           ref={anchorRef}
         >
           {action === 'detail' ?
-            <DetailBuyoutForm /> :
+            <DetailBuyoutForm items={items} /> :
             <CreateBuyoutForm/>
           }
         </Drawer>

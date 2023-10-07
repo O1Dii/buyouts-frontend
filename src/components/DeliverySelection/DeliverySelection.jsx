@@ -17,6 +17,8 @@ import {ItemsContext, MyItemsContext} from '../../context/ItemsContext';
 import Autocomplete from "@mui/material/Autocomplete";
 import {buttonStyle} from "../../constants/styles";
 import Typography from "@mui/material/Typography";
+import axios from "axios";
+import {ARTICLES_GET_AND_UPDATE_ARTICLE, GET_DELIVERY_ADDRESSES} from "../../constants/links";
 
 
 export default function DeliverySelection({deliveryAddresses, setAddress}) {
@@ -33,6 +35,10 @@ export default function DeliverySelection({deliveryAddresses, setAddress}) {
     useEffect(() => {map.setView(view, 13)}, [view])
     return null
   }
+
+  useEffect(() => {
+
+  }, [])
 
   navigator.geolocation.watchPosition(success, () => {
     console.log('geolocation error')

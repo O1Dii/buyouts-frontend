@@ -17,14 +17,18 @@ export default function BuyoutsTable({items}) {
 
   const [data, setData] = useState([]);
 
+
   useEffect(() => {
     const currentData = items.map((product) => (
       <Grid container alignItems="center" spacing={2} className="item-row"
             style={{minHeight: "90px", cursor: "pointer"}} onClick={() => {
         navigate(`/buyouts/detail/${product.id}`)
       }}>
-        <Grid xs={2}>
-          {product.date.toLocaleString()}
+        <Grid sx={{display: "flex", alignItems: "center"}} xs={2}>
+          <Box component="img" sx={{height: 90, width: 90, objectFit: "cover"}} src={product.article?.photoUrl} alt={""} />
+        </Grid>
+        <Grid xs={1}>
+          {product.createDate}
         </Grid>
         <Grid xs={2}>
           <strong>
@@ -32,21 +36,22 @@ export default function BuyoutsTable({items}) {
           </strong>
         </Grid>
         <Grid xs={4}>
-          {product.name}
+          <Box />{product.article?.name}
         </Grid>
         <Grid xs={1}>
           <strong>
-            {product.price} ₽
+            {product.article?.price} ₽<br/>
+            {product.article?.fullPrice && <><s>{product.article.fullPrice}</s> ₽</>}
           </strong>
         </Grid>
         <Grid xs={2}>
-          {product.address}
+          {product.deliveryAddress}
         </Grid>
-        <Grid xs={1}>
-          <div>
-            <Button style={buttonStyle}>:</Button>
-          </div>
-        </Grid>
+        {/*<Grid xs={1}>*/}
+        {/*  <div>*/}
+        {/*    <Button style={buttonStyle}>:</Button>*/}
+        {/*  </div>*/}
+        {/*</Grid>*/}
       </Grid>
     ))
 
@@ -61,13 +66,14 @@ export default function BuyoutsTable({items}) {
         </Box>
       )
     }
-  }, [])
+  }, [items.length])
 
   return (
     <div className="buyouts-table" style={{width: "100%"}}>
       <Box sx={{flexGrow: 1}}>
         <Grid sx={{padding: "25px 0"}} container spacing={2}>
-          <Grid xs={2}>
+          <Grid xs={2} />
+          <Grid xs={1}>
             <strong>
               Дата
             </strong>
@@ -92,7 +98,7 @@ export default function BuyoutsTable({items}) {
               Адрес
             </strong>
           </Grid>
-          <Grid xs={1} />
+          {/*<Grid xs={1} />*/}
         </Grid>
         {data}
       </Box>
