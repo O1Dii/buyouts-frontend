@@ -1,4 +1,5 @@
-export const API_BASE = 'http://localhost:8080/api/v1/'
+export const API_ROOT = 'http://localhost:8080/'
+export const API_BASE = `${API_ROOT}api/v1/`
 
 export const ARTICLES_GET_ALL_ARTICLES = () => `${API_BASE}articles`;
 export const ARTICLES_ADD_NEW_ARTICLE = () => `${API_BASE}articles`;
@@ -13,5 +14,10 @@ export const BUYOUTS_GET_BUYOUT_STATUS = (id) => `${API_BASE}buyouts/${id}/statu
 export const BUYOUTS_GET_PAYMENT_QR = (id) => `${API_BASE}buyouts/${id}/payment/qrcode`
 
 export const AUTHENTICATE = () => `${API_BASE}auth/authenticate`
+export const GET_USER_INFO = () => `${API_BASE}users`
 
-export const GET_DELIVERY_ADDRESSES = () => `${API_BASE}delivery_addresses`
+
+export const GET_OPERATIONS_HISTORY = () => `${API_BASE}payments`
+export const TOPUP_BALANCE = () => `${API_BASE}payments`
+
+export const GET_DELIVERY_ADDRESSES = () => `${API_ROOT}pickuppoints`

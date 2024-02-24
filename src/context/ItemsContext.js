@@ -14,7 +14,7 @@ export default function MyItemsContextProvider(props) {
   const [myItems, setMyItems] = useState({});
   const [deliveryAddresses, setDeliveryAddresses] = useState([]);
   const [loading, setLoading] = useState(false);
-  const {user} = useContext(UserContext);
+  const {user, hasUser} = useContext(UserContext);
 
   const loadItems = () => {
     setLoading(true)
@@ -35,18 +35,21 @@ export default function MyItemsContextProvider(props) {
   }
 
   useEffect(() => {
-    axios
-      .get(GET_DELIVERY_ADDRESSES(), {
-        headers:{
-          'Authorization': `Bearer ${user.accessToken}`,
-        }
-      })
-      .then(response => {
-        if ([200, 201].contains(response.status)) {
-          setDeliveryAddresses(response.data)
-        }
-      }, [user.accessToken])
+    if (hasUser()) {
+      axios
+        .get(GET_DELIVERY_ADDRESSES(), {
+          headers: {
+            'Authorization': `Bearer ${user.accessToken}`,
+          }
+        })
+        .then(response => {
+          if ([200, 201].contains(response.status)) {
+            setDeliveryAddresses(response.data)
+          }
+        })
+    }
 
+    // TODO: remove when ready
     setDeliveryAddresses([{
       position: [55.755834, 37.6154],
       name: 'ул. Николы Тесла 16'
@@ -54,7 +57,7 @@ export default function MyItemsContextProvider(props) {
       position: [55.755810, 37.6179],
       name: 'ул. Николы Тесла 1a'
     }])
-  }, [])
+  }, [user.accessToken])
 
   const context = {
     myItems,

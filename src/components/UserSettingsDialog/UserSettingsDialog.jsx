@@ -14,8 +14,13 @@ import {MyItemsContext} from "../../context/ItemsContext";
 import {UserContext} from "../../context/UserContext";
 import {accentButtonStyle, buttonStyle} from "../../constants/styles";
 
-export default function UserSettingsDialog() {
-  const {user, logout} = useContext(UserContext);
+export default function UserSettingsDialog({onTopupClick, onHistoryClick}) {
+  const {user, updateUserInfo, logout} = useContext(UserContext);
+
+  useEffect(() => {
+    if (user.accessToken)
+      updateUserInfo()
+  }, [])
 
   return (
     <Grid container alignItems="center" spacing={2}>
@@ -40,12 +45,12 @@ export default function UserSettingsDialog() {
         </Typography>
       </Grid>
       <Grid item xs={6}>
-        <Button style={accentButtonStyle}>
+        <Button onClick={onTopupClick} style={accentButtonStyle}>
           Пополнить
         </Button>
       </Grid>
       <Grid item xs={6}>
-        <Button style={buttonStyle}>
+        <Button onClick={onHistoryClick} style={buttonStyle}>
           История операций
         </Button>
       </Grid>

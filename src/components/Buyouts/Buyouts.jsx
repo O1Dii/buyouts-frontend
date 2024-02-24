@@ -67,21 +67,6 @@ export default function Buyouts() {
   }, [action])
 
   useEffect(() => {
-    // const receivedItems = [{
-    //   id: 123,
-    //   date: new Date(2023, 5, 13),
-    //   status: BUYOUT_STATUSES_NAMES.AWAITING_PAYMENT,
-    //   name: 'Пижамы женские со штанами',
-    //   price: 2378,
-    //   address: 'г. Москва, м Китай-город'
-    // }, {
-    //   id: 333,
-    //   date: new Date(2023, 5, 14),
-    //   status: BUYOUT_STATUSES_NAMES.AWAITING_PAYMENT,
-    //   name: 'Пижамы мужские',
-    //   price: 255,
-    //   address: 'г. Москва, м Китай-город'
-    // }]
     if (!hasUser())
       return
     setLoading(true);
@@ -93,8 +78,9 @@ export default function Buyouts() {
       })
       .then(response => {
         const receivedItems = response.data;
+        console.log(receivedItems)
         setItems(receivedItems);
-        const delivery_address_list = [...new Set(receivedItems.map(item => item.address))];
+        const delivery_address_list = [...new Set(receivedItems.map(item => item.deliveryAddress))];
         delivery_address_list.sort();
         setDeliveryAddressList(delivery_address_list);
         setLoading(false);
@@ -107,9 +93,9 @@ export default function Buyouts() {
   useEffect(() => {
     console.log(filters);
     setFilteredItems(items.filter(item => (
-      (!filters.status || item.status === filters.status) &&
-      (!filters.item || item.name === filters.item) &&
-      (!filters.delivery_address || item.address === filters.delivery_address)
+      (!filters.status || BUYOUT_STATUSES_NAMES[item.status] === filters.status) &&
+      (!filters.item || item.article.name === filters.item) &&
+      (!filters.delivery_address || item.deliveryAddress === filters.delivery_address)
     )))
   }, [reload, items, filters])
 
@@ -149,6 +135,7 @@ export default function Buyouts() {
                 labelId="status-select-label"
                 id="status-select"
                 value={filters.status}
+                label={"Статус"}
                 onChange={(e) => {
                   setFilters({...filters, status: e.target.value})
                 }}
@@ -162,11 +149,13 @@ export default function Buyouts() {
                 labelId="item-select-label"
                 id="item-select"
                 value={filters.item}
+                label={"Товар"}
                 onChange={(e) => {
                   setFilters({...filters, item: e.target.value})
                 }}
               >
-                {items.map(item => <MenuItem value={item.name}>{item.name}</MenuItem>)}
+                {/*TODO: refactor*/}
+                {[...new Set(items.map(item => item.article.name))].map(articleName => <MenuItem value={articleName}>{articleName}</MenuItem>)}
               </Select>
             </FormControl>
             <FormControl sx={{minWidth: 150, width: 200}}>
@@ -175,6 +164,7 @@ export default function Buyouts() {
                 labelId="delivery-address-select-label"
                 id="delivery-address-select"
                 value={filters.delivery_address}
+                label={"ПВЗ"}
                 onChange={(e) => {
                   setFilters({...filters, delivery_address: e.target.value})
                 }}
@@ -210,7 +200,7 @@ export default function Buyouts() {
         >
           {action === 'detail' ?
             <DetailBuyoutForm items={items} /> :
-            <CreateBuyoutForm/>
+            <CreateBuyoutForm reloadBuyoutsPage={() => setReload(reload + 1)} />
           }
         </Drawer>
       </ClickAwayListener>

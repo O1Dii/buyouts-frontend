@@ -1,7 +1,7 @@
 import {useState, useContext, useEffect} from 'react';
 
 import Box from '@mui/material/Box';
-import {Button, IconButton} from "@mui/material";
+import {Button, FormHelperText, IconButton} from "@mui/material";
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Paper from '@mui/material/Paper';
@@ -10,7 +10,6 @@ import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Select from '@mui/material/Select';
-import Modal from "@mui/material/Modal";
 import InputLabel from "@mui/material/InputLabel";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
@@ -29,11 +28,11 @@ import {
   SelectedSwitchButton
 } from "../../constants/styles";
 import axios from "axios";
-import {ARTICLES_GET_AND_UPDATE_ARTICLE, ARTICLES_GET_ARTICLE, BUYOUTS_CREATE_NEW_BUYOUT} from "../../constants/links";
-import Autocomplete from "@mui/material/Autocomplete";
+import {ARTICLES_GET_AND_UPDATE_ARTICLE, BUYOUTS_CREATE_NEW_BUYOUT} from "../../constants/links";
+import Modal from "../Modal/Modal";
 
 
-export default function CreateBuyoutForm() {
+export default function CreateBuyoutForm({reloadBuyoutsPage}) {
   const {user, hasUser} = useContext(UserContext);
   const {myItems, deliveryAddresses, loadItems} = useContext(MyItemsContext);
   const {productId} = useParams();
@@ -50,8 +49,15 @@ export default function CreateBuyoutForm() {
     humanBehaviorEnable: false,
     plannedTime: null
   });
+  const [formValidation, setFormValidation] = useState({})
+  const [responseValidation, setResponseValidation] = useState("")
 
   console.log(productId)
+
+  useEffect(() => {
+    if (hasUser())
+      loadItems();
+  }, [user]);
 
   useEffect(() => {
     console.log(productId)
@@ -68,15 +74,33 @@ export default function CreateBuyoutForm() {
 
   const [isMapOpen, setIsMapOpen] = useState(false);
 
-  useEffect(() => {
-    if (hasUser())
-      loadItems()
-  }, [user])
+  const validateForm = () => {
+    console.log(formData);
+    const formValidationErrors = {};
+    setResponseValidation("");
+    if (!formData.item) {
+      formValidationErrors['item'] = 'Товар не выбран'
+    }
+    if (!formData.keyString) {
+      formValidationErrors['keyString'] = 'Ключевой запрос не заполнен'
+    }
+    if (!formData.address) {
+      formValidationErrors['address'] = 'Адрес не выбран'
+    }
+    if (formData.item?.sizes && formData.item.sizes.length && !formData.size) {
+      formValidationErrors['size'] = 'Размер не выбран'
+    }
+    setFormValidation(formValidationErrors);
+    if (JSON.stringify(formValidationErrors) !== '{}') {
+      return false;
+    }
+    return true;
+  }
 
   useEffect(() => {
     if (formData.item && formData.item.article) {
       axios
-        .post(ARTICLES_GET_AND_UPDATE_ARTICLE(formData.item.article), {
+        .post(ARTICLES_GET_AND_UPDATE_ARTICLE(formData.item.article), {},{
           headers:{
             'Authorization': `Bearer ${user.accessToken}`,
           }
@@ -101,39 +125,46 @@ export default function CreateBuyoutForm() {
       ],
       "humanBehaviorEnable": true
    */
-    axios
-      .post(BUYOUTS_CREATE_NEW_BUYOUT(), {
-        articleId: formData.item.article,
-        buyerGender: formData.sex,
-        keyword: formData.keyString,
-        size: formData.size,
-        deliveryAddress: formData.address,
-        competitorArticles: formData.competitorItems.map(item => item.article),
-        humanBehaviorEnable: formData.humanBehaviorEnable
-      },{
-        headers:{
-          'Authorization': `Bearer ${user.accessToken}`,
-        }
-      })
-      .then(response => {
-        if (response.status === 201) {
-          navigate("/buyouts");
-        }
-        if (response.status === 402) {
-          alert('Недостаточно средств на балансе')
-        }
-      })
+    if (validateForm()) {
+      axios
+        .post(BUYOUTS_CREATE_NEW_BUYOUT(), {
+          articleId: formData.item.article,
+          buyerGender: formData.sex,
+          keyword: formData.keyString,
+          size: formData.size,
+          deliveryAddress: formData.address,
+          competitorArticles: formData.competitorItems.map(item => item.article),
+          humanBehaviorEnable: formData.humanBehaviorEnable
+        }, {
+          headers: {
+            'Authorization': `Bearer ${user.accessToken}`,
+          }
+        })
+        .then(response => {
+          if (response.status === 201) {
+            reloadBuyoutsPage()
+            navigate("/buyouts");
+          }
+        })
+        .catch(error => {
+          if (error.response.status === 402) {
+            setResponseValidation('Недостаточно средств на балансе');
+          }
+        })
+    }
   }
 
   return (
     <Box sx={{margin: "20px"}}>
       <Stack>
         <FormControl>
-          <InputLabel id="demo-simple-select-label">Выберите товар</InputLabel>
+          <InputLabel error={formValidation['item']} id="demo-simple-select-label">Выберите товар</InputLabel>
           <Select
+            error={formValidation['item']}
+            helperText={formValidation['item']}
             labelId="demo-simple-select-label"
             id="demo-simple-select"
-            value={formData.item?.article || 0}
+            value={formData.item?.article || null}
             label="Выберите товар"
             onChange={(e) => {
               const item = (myItems.items || []).filter(item => e.target.value === item.article)[0]
@@ -142,6 +173,7 @@ export default function CreateBuyoutForm() {
           >
             {(myItems.items || []).map((item) => <MenuItem value={item.article}>{`№${item.article}: ${item.name}`}</MenuItem>)}
           </Select>
+          {formValidation['item'] && <FormHelperText error>{formValidation['item']}</FormHelperText>}
         </FormControl>
         {formData.item &&
           <>
@@ -167,8 +199,10 @@ export default function CreateBuyoutForm() {
 
           {formData.item.sizes && formData.item.sizes.length &&
           <FormControl sx={{width: "100%", marginTop: "20px"}}>
-            <InputLabel id="delivery-address-select-label">Размер</InputLabel>
+            <InputLabel error={formValidation['size']} id="delivery-address-select-label">Размер</InputLabel>
             <Select
+              error={formValidation['size']}
+              helperText={formValidation['size']}
               value={formData.size}
               label={"Размер"}
               labelId="size-select-label"
@@ -178,6 +212,7 @@ export default function CreateBuyoutForm() {
             >
               {formData.item.sizes.map(size => <MenuItem value={size}>{size}</MenuItem>)}
             </Select>
+            {formValidation['size'] && <FormHelperText error>{formValidation['size']}</FormHelperText>}
           </FormControl>
           }
 
@@ -230,6 +265,8 @@ export default function CreateBuyoutForm() {
         </Stack>
         <Stack direction={"row"} sx={{width: "100%"}}>
           <TextField
+            error={formValidation['keyString']}
+            helperText={formValidation['keyString']}
             sx={{width: "100%"}}
             value={formData.keyString}
             onChange={(e) => {setFormData({...formData, keyString: e.target.value})}}
@@ -238,23 +275,28 @@ export default function CreateBuyoutForm() {
           />
           {/*<Button disabled={!formData.keyString}>Фильтры</Button>*/}
         </Stack>
-        <Paper elevation={3} sx={{margin: "20px 0"}}>
-          <Stack>
-            {formData.address &&
-              <Typography sx={{marginTop: "15px"}}>
-                <strong>
-                  {formData.address}
-                </strong>
-              </Typography>
-            }
-            <Button sx={{...buttonStyle, width: "fit-content", margin: "15px auto"}} onClick={() => setIsMapOpen(true)}>
-              {formData.address ? 'Изменить Адрес Доставки' : 'Выбрать Адрес Доставки'}
-            </Button>
-          </Stack>
-        </Paper>
+        <FormControl>
+          <Paper elevation={3} sx={{...{marginTop: "20px"}, ...(formValidation['address'] ? {border: '1px solid #d32f2f'} : {})}}>
+            <Stack>
+              {formData.address &&
+                <Typography sx={{marginTop: "15px"}}>
+                  <strong>
+                    {formData.address}
+                  </strong>
+                </Typography>
+              }
+              <Button error sx={{...buttonStyle, width: "fit-content", margin: "15px auto"}} onClick={() => setIsMapOpen(true)}>
+                {formData.address ? 'Изменить Адрес Доставки' : 'Выбрать Адрес Доставки'}
+              </Button>
+            </Stack>
+          </Paper>
+          {formValidation['address'] && <FormHelperText error>{formValidation['address']}</FormHelperText>}
+        </FormControl>
         <FormControlLabel
           control={<Checkbox checked={competitorsSelected} onChange={(e) => setCompetitorsSelected(e.target.checked)}/>}
-          label="Добавить товары конкурентов в корзину перед покупкой"/>
+          label="Добавить товары конкурентов в корзину перед покупкой"
+          sx={{marginTop: "20px"}}
+        />
         {competitorsSelected &&
           <Paper elevation={3}>
             <Stack>
@@ -294,14 +336,16 @@ export default function CreateBuyoutForm() {
           }
           label="Имитировать человеческое поведение (+100500 ₽)"
         />
-
+        {responseValidation &&
+          <Box sx={{border: "2px solid #d32f2f", display: "flex", justifyContent: "center", borderRadius: "10px"}}>
+            <FormHelperText error>{responseValidation}</FormHelperText>
+          </Box>
+        }
         <Button onClick={() => createBuyout()} sx={{...accentButtonStyle, marginTop: "20px"}}>Создать выкуп</Button>
       </Stack>
       <Modal
         open={isMapOpen}
         onClose={() => setIsMapOpen(false)}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
       >
         <DeliverySelection
           deliveryAddresses={deliveryAddresses}

@@ -37,7 +37,7 @@ export default function Pagination({urlBase, itemsLen, productsOnPage, setProduc
           />
         )}
       />
-      <Stack direction="row" spacing={2}>
+      <Stack direction="row" alignItems="center" spacing={2}>
         <p>На странице</p>
         <FormControl>
           <Select

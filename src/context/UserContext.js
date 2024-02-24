@@ -1,12 +1,13 @@
 import React, {useState, useEffect} from "react";
 import axios from "axios";
-import {ARTICLES_GET_ALL_ARTICLES, AUTHENTICATE} from "../constants/links";
+import {ARTICLES_GET_ALL_ARTICLES, AUTHENTICATE, GET_USER_INFO} from "../constants/links";
 import {useNavigate} from "react-router-dom";
 
 export const UserContext = React.createContext({
   user: {},
   loading: false,
   logout: () => {},
+  hasUser: () => {},
   setUser: () => {}
 });
 
@@ -32,11 +33,11 @@ export default function UserContextProvider(props) {
       .then(response => {
         setLoading(false);
         const userObject = {
-          name: "Алексей",
-          surname: "Прокопенко",
-          phone: "+375447720161",
-          picture: "https://basket-01.wb.ru/vol68/part6872/6872871/images/big/1.jpg",
-          balance: 150,
+          name: "",
+          surname: "",
+          phone: "",
+          picture: "",
+          balance: 0,
           accessToken: response.data.access_token
         }
         setUser(userObject);
@@ -48,6 +49,39 @@ export default function UserContextProvider(props) {
         console.error(error);
       })
   }
+
+  const updateUserInfo = () => {
+    setLoading(true);
+    axios
+      .get(GET_USER_INFO(), {
+        headers:{
+          'Authorization': `Bearer ${user.accessToken}`,
+        }
+      })
+      .then(response => {
+        setLoading(false);
+        const userObject = {
+          name: response.data.name,
+          surname: response.data.lastname,
+          phone: response.data.number,
+          picture: "https://basket-01.wb.ru/vol68/part6872/6872871/images/big/1.jpg",
+          balance: response.data.balance,
+          accessToken: user.accessToken
+        }
+        setUser(userObject);
+        localStorage.removeItem('user');
+        localStorage.setItem('user', JSON.stringify(userObject))
+      })
+      .catch(error => {
+        setLoading(false);
+        console.error(error);
+      })
+  }
+
+  useEffect(() => {
+    if (user.accessToken)
+      updateUserInfo()
+  }, [user.accessToken])
 
   const logout = () => {
     localStorage.removeItem('user');
@@ -63,6 +97,7 @@ export default function UserContextProvider(props) {
     user,
     loading,
     logout,
+    updateUserInfo,
     authenticate,
     hasUser
   }

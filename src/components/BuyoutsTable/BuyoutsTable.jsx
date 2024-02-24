@@ -7,6 +7,7 @@ import "../Buyouts/buyouts.css";
 
 import Pagination from '../Pagination/Pagination';
 import {useEffect, useState} from "react";
+import {BUYOUT_STATUSES_NAMES} from "../../constants/buyouts";
 
 export default function BuyoutsTable({items}) {
   const navigate = useNavigate();
@@ -19,20 +20,20 @@ export default function BuyoutsTable({items}) {
 
 
   useEffect(() => {
-    const currentData = items.map((product) => (
+    const currentData = items.map((product, index) => (
       <Grid container alignItems="center" spacing={2} className="item-row"
-            style={{minHeight: "90px", cursor: "pointer"}} onClick={() => {
+            style={{minHeight: "90px", cursor: "pointer", borderRadius: "10px", marginBottom: "10px"}} onClick={() => {
         navigate(`/buyouts/detail/${product.id}`)
       }}>
         <Grid sx={{display: "flex", alignItems: "center"}} xs={2}>
-          <Box component="img" sx={{height: 90, width: 90, objectFit: "cover"}} src={product.article?.photoUrl} alt={""} />
+          <Box component="img" sx={{height: 90, width: 90, objectFit: "cover", borderRadius: "10px"}} src={product.article?.photoUrl} alt={""} />
         </Grid>
         <Grid xs={1}>
           {product.createDate}
         </Grid>
         <Grid xs={2}>
           <strong>
-            {product.status}
+            {BUYOUT_STATUSES_NAMES[product.status]}
           </strong>
         </Grid>
         <Grid xs={4}>

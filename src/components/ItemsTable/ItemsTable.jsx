@@ -26,10 +26,10 @@ export default function ItemsTable({items}) {
   console.log(items);
 
   useEffect(() => {
-    const currentData = items.map((product) => (
-      <Grid container alignItems="center" spacing={2}>
+    const currentData = items.map((product, index) => (
+      <Grid container alignItems="center" spacing={2} style={{marginBottom: "10px"}}>
         <Grid sx={{display: "flex", alignItems: "center"}} xs={2}>
-          <Box component="img" sx={{height: 90, width: 90, objectFit: "cover"}} src={product.photoUrl} alt={""} />
+          <Box component="img" sx={{height: 90, width: 90, objectFit: "cover", borderRadius: "10px"}} src={product.photoUrl} alt={""} />
         </Grid>
         <Grid xs={2}>
           <strong>
