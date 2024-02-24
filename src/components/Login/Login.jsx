@@ -8,6 +8,7 @@ import Stack from "@mui/material/Stack";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
+import {API_ROOT, setApiRoot} from "../../constants/links";
 
 function LoggedInLayout() {
   const [login, setLogin] = useState('');
@@ -30,6 +31,7 @@ function LoggedInLayout() {
         <Grid item xs={9} />
         <Grid item sx={{backgroundColor: "white"}} xs={3}>
           <Stack spacing={2} sx={{height: "100%", display: "flex", alignItems: "center", justifyContent: "center", margin: "50px"}}>
+            <TextField id="setroot" sx={{width: "100%"}} label="BE URL" variant={"outlined"} value={API_ROOT} onChange={e => setApiRoot(e.target.value)}/>
             <TextField id="login" sx={{width: "100%"}} label="Номер телефона" variant={"outlined"} value={login} onChange={e => setLogin(e.target.value)}/>
             <TextField id="password" sx={{width: "100%"}} label="Пароль" variant={"outlined"} value={password} onChange={e => setPassword(e.target.value)}/>
             <Button style={accentButtonStyle} onClick={() => {
