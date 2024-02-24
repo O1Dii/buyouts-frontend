@@ -1,4 +1,4 @@
-export const API_ROOT = 'http://localhost:8080/'
+export const API_ROOT = 'http://34.171.212.41:8080/'
 export const API_BASE = `${API_ROOT}api/v1/`
 
 export const ARTICLES_GET_ALL_ARTICLES = () => `${API_BASE}articles`;
