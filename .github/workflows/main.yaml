@@ -1,0 +1,26 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - ready_for_review
+  workflow_dispatch:
+    inputs:
+      node-version:
+        description: 'Node.js version'
+        type: string
+        required: false
+        default: '20.11'
+jobs:
+    build-and-deploy:
+      uses: MarketScrappers/infra-workflows/.github/workflows/build-and-deploy-frontend-workflow.yaml@main
+      with:
+        node-version: ${{ github.event.inputs.node-version }}
+      permissions:
+        contents: read
+        id-token: write
+        pull-requests: write
