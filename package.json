@@ -65,7 +65,7 @@
     "webpack-merge": "^4.2.2"
   },
   "scripts": {
-    "build": "webpack --mode production --config config/webpack.prod.js",
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider; webpack --mode production --config config/webpack.prod.js",
     "build-dev": "webpack --config config/webpack.dev.js",
     "test": "node webpack/js/test.js"
   },
