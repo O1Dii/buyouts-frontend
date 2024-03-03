@@ -1,4 +1,4 @@
-export let API_ROOT = 'http://34.31.245.213:8080/'
+export let API_ROOT = 'http://backend.yseller.pro:8080/'
 
 export const setApiRoot = (url) => {
   API_ROOT = url;
